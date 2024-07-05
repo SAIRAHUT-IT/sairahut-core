@@ -3,11 +3,19 @@ export interface Member {
   username: string;
   reputation: number;
   role: MemberRole;
+  status: MemberStatus;
   coins: number;
   this_or_that: string[];
+  gay?: number;
 }
 
 export enum MemberRole {
-  FRESHY,
-  SEPHOMORE,
+  FRESHY = 'FRESHY',
+  SEPHOMORE = 'SEPHOMORE',
+}
+
+export enum MemberStatus {
+  PAIRED = 'PAIRED',
+  UNPAIR = 'UNPAIR',
+  FREEZE = 'FREEZE',
 }

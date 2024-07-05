@@ -8,7 +8,9 @@ import {
   Delete,
 } from '@nestjs/common';
 import { FreshyService } from './freshy.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('FRESHY')
 @Controller('freshy')
 export class FreshyController {
   constructor(
