@@ -16,6 +16,7 @@ model Freshy {
   this_or_that     String[]
   paired_member    Sophomore?   @relation(fields: [paired_member_id], references: [id])
   paired_member_id Int?
+  code             Code[]
 }
 
 model Sophomore {
@@ -27,6 +28,20 @@ model Sophomore {
   this_or_that   String[]
   maximum_member Int          @default(1)
   paired_with    Freshy[]
+  code           Code[]
+}
+
+model Code {
+  id       Int     @id @default(autoincrement())
+  code     String
+  is_used  Boolean @default(false)
+  disabled Boolean @default(false)
+
+  redeemed_by_id Int?
+  redeemed_by    Freshy? @relation(fields: [redeemed_by_id], references: [id])
+
+  creator_id Int
+  creator    Sophomore @relation(fields: [creator_id], references: [id])
 }
 
 enum MemberStatus {
