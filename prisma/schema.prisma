@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Freshy {
+  id               Int          @id @default(autoincrement())
+  username         String       @unique
+  status           MemberStatus @default(FREEZE)
+  reputation       Int
+  coins            Int
+  this_or_that     String[]
+  paired_member    Sophomore?   @relation(fields: [paired_member_id], references: [id])
+  paired_member_id Int?
+}
+
+model Sophomore {
+  id             Int          @id @default(autoincrement())
+  username       String       @unique
+  status         MemberStatus @default(FREEZE)
+  reputation     Int
+  coins          Int
+  this_or_that   String[]
+  maximum_member Int          @default(1)
+  paired_with    Freshy[]
+}
+
+enum MemberStatus {
+  PAIRED
+  UNPAIR
+  FREEZE
+}
