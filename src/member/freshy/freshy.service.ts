@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { MemberStatus } from '@prisma/client';
+import { MemberRole, MemberStatus } from '@prisma/client';
 import { PrismaService } from 'src/libs/prisma';
 
 @Injectable()
@@ -8,19 +8,21 @@ export class FreshyService {
 
   public async getFreshies() {
     try {
-      const result =
-        await this.prismaService.freshy.findMany({
-          include: {
-            paired_member: {
-              select: {
-                username: true,
-              },
+      const result = await this.prismaService.member.findMany({
+        where: {
+          role: MemberRole.FRESHY,
+        },
+        include: {
+          paired_member: {
+            select: {
+              username: true,
             },
           },
-          orderBy: {
-            id: 'asc',
-          },
-        });
+        },
+        orderBy: {
+          id: 'asc',
+        },
+      });
       return result;
     } catch (error) {
       throw error;

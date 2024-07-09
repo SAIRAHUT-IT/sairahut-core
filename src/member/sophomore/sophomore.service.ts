@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { MemberRole } from '@prisma/client';
 import { PrismaService } from 'src/libs/prisma';
 
 @Injectable()
@@ -7,8 +8,8 @@ export class SophomoreService {
 
   public async getSophomoreId(id: number) {
     try {
-      const result = await this.prismaService.sophomore.findUnique({
-        where: { id: id },
+      const result = await this.prismaService.member.findUnique({
+        where: { id: id, role: MemberRole.SOPHOMORE },
         include: {
           paired_with: true,
         },
@@ -19,7 +20,10 @@ export class SophomoreService {
 
   public async getSophomore() {
     try {
-      const result = await this.prismaService.sophomore.findMany({
+      const result = await this.prismaService.member.findMany({
+        where: {
+          role: MemberRole.SOPHOMORE,
+        },
         include: {
           paired_with: true,
         },

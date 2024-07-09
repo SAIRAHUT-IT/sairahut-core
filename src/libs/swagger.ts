@@ -1,8 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import {
-  DocumentBuilder,
-  SwaggerModule,
-} from '@nestjs/swagger';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { NODE_ENV } from 'src/config/variables';
 
 function swaggerBuilder(app: INestApplication) {
@@ -11,12 +8,9 @@ function swaggerBuilder(app: INestApplication) {
       .setTitle('SAIRAHUT CORE')
       .setDescription('SAIRAHUT CORE API Documentation')
       .setVersion('0.2')
-      .addBasicAuth()
+      .addBearerAuth()
       .build();
-    const document = SwaggerModule.createDocument(
-      app,
-      config,
-    );
+    const document = SwaggerModule.createDocument(app, config);
     SwaggerModule.setup('docsapi', app, document);
   }
 }

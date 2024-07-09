@@ -5,6 +5,8 @@ import { FreshyModule } from './member/freshy/freshy.module';
 import { SophomoreModule } from './member/sophomore/sophomore.module';
 import { PairerModule } from './member/pairer/pairer.module';
 import { CodeHuntModule } from './member/code-hunt/code-hunt.module';
+import { AuthModule } from './member/auth/auth.module';
+import { PrismaService } from './libs/prisma';
 
 @Module({
   imports: [
@@ -12,6 +14,7 @@ import { CodeHuntModule } from './member/code-hunt/code-hunt.module';
     SophomoreModule,
     PairerModule,
     CodeHuntModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { MemberStatus } from '@prisma/client';
+import { MemberRole, MemberStatus } from '@prisma/client';
 import { PrismaService } from 'src/libs/prisma';
 
 @Injectable()
@@ -8,20 +8,23 @@ export class PairerService {
 
   public async pairer() {
     try {
-      const freshies = await this.prismaService.freshy.findMany({
-        where: { status: MemberStatus.UNPAIR },
+      const freshies = await this.prismaService.member.findMany({
+        where: {
+          status: MemberStatus.UNPAIR,
+          role: MemberRole.FRESHY,
+        },
         include: { paired_member: true },
         orderBy: { id: 'asc' },
       });
       for (const std of freshies) {
-        const sph = await this.prismaService.sophomore.findFirst({
+        const sph = await this.prismaService.member.findFirst({
           where: {
             status: MemberStatus.UNPAIR,
+            role: MemberRole.SOPHOMORE,
             this_or_that: { hasSome: std.this_or_that },
           },
           include: {
             paired_with: true,
-            _count: { select: { paired_with: true } },
           },
         });
         if (!sph)
@@ -33,41 +36,22 @@ export class PairerService {
         console.log(
           `Successfully Pair ${self.username} with ${target.username}`,
         );
-        // return {
-        //   message: `Successfully Pair ${self.username} with ${target.username}`,
-        // };
+        return {
+          message: `Successfully Pair ${self.username} with ${target.username}`,
+        };
       }
     } catch (error) {
       throw error;
     }
   }
 
-  public async unpairer() {
-    try {
-      await this.prismaService.sophomore.updateMany({
-        data: { status: MemberStatus.UNPAIR },
-      });
-
-      await this.prismaService.freshy.updateMany({
-        data: {
-          status: MemberStatus.UNPAIR,
-          paired_member_id: null,
-        },
-      });
-    } catch (error) {
-      throw error;
-    }
-  }
-
   public async connectMember(selfId: number, targetId: number) {
-    const targetResult = await this.prismaService.sophomore.findFirst(
-      {
-        where: { id: targetId },
-        include: {
-          _count: { select: { paired_with: true } },
-        },
+    const targetResult = await this.prismaService.member.findFirst({
+      where: { id: targetId },
+      include: {
+        paired_with: true,
       },
-    );
+    });
 
     if (!targetResult) {
       throw new Error(
@@ -76,37 +60,38 @@ export class PairerService {
     }
 
     if (
-      targetResult.maximum_member > targetResult._count.paired_with
+      targetResult.maximum_member > targetResult.paired_with.length
     ) {
-      const selfResponse = await this.prismaService.freshy.update({
-        where: { id: selfId },
+      const selfResponse = await this.prismaService.member.update({
+        where: { id: selfId, role: MemberRole.FRESHY },
         data: {
           status: MemberStatus.PAIRED,
-          paired_member: {
-            connect: { id: targetResult.id },
-          },
+          paired_member_id: targetResult.id,
         },
       });
 
-      const updatedTarget =
-        await this.prismaService.sophomore.findFirst({
-          where: { id: targetId },
+      const updatedTarget = await this.prismaService.member.findFirst(
+        {
+          where: {
+            id: targetId,
+            role: MemberRole.SOPHOMORE,
+          },
           include: {
             _count: { select: { paired_with: true } },
           },
-        });
+        },
+      );
 
-      const targetResponse =
-        await this.prismaService.sophomore.update({
-          where: { id: targetResult.id },
-          data: {
-            status:
-              updatedTarget.maximum_member >
-              updatedTarget._count.paired_with
-                ? MemberStatus.UNPAIR
-                : MemberStatus.PAIRED,
-          },
-        });
+      const targetResponse = await this.prismaService.member.update({
+        where: { id: targetResult.id, role: MemberRole.SOPHOMORE },
+        data: {
+          status:
+            updatedTarget.maximum_member >
+            updatedTarget._count.paired_with
+              ? MemberStatus.UNPAIR
+              : MemberStatus.PAIRED,
+        },
+      });
 
       return { self: selfResponse, target: targetResponse };
     }

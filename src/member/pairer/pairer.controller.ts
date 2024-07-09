@@ -11,9 +11,4 @@ export class PairerController {
   getPaired() {
     return this.pairerService.pairer();
   }
-
-  @Delete()
-  unpairer() {
-    return this.pairerService.unpairer();
-  }
 }
