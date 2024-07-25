@@ -6,6 +6,7 @@ import {
 import { PrismaService } from 'src/libs/prisma';
 import * as qrcode from 'qrcode';
 import { RedeemCodeDto } from 'src/dtos/code-hunt-dto/redeem.dto';
+import { ValidateMemberDto } from 'src/dtos/auth/auth.dto';
 @Injectable()
 export class CodeHuntService {
   constructor(private prismaService: PrismaService) {}
@@ -27,7 +28,7 @@ export class CodeHuntService {
   private makeid(length: number) {
     let result = '';
     const characters =
-      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123356789';
     const charactersLength = characters.length;
     let counter = 0;
     while (counter < length) {
@@ -39,21 +40,29 @@ export class CodeHuntService {
     return result;
   }
 
-  public async generateCode() {
+  public async generateCode(member: ValidateMemberDto) {
     try {
       const checker = await this.prismaService.code.count({
-        where: { creator_id: 4, disabled: false, is_used: false },
+        where: {
+          creator_id: member.id,
+          disabled: false,
+          is_used: false,
+        },
       });
       if (checker >= 2) {
         await this.prismaService.code.updateMany({
-          where: { creator_id: 4, disabled: false, is_used: false },
+          where: {
+            creator_id: member.id,
+            disabled: false,
+            is_used: false,
+          },
           data: { disabled: true },
         });
       }
       const creator = await this.prismaService.code.create({
         data: {
-          creator_id: 4,
-          code: `${this.makeid(9)}$${4}`,
+          creator_id: member.id,
+          code: `${this.makeid(6)}$${member.id}`,
         },
       });
       const qrcode = await this.generateQrcode(creator.code);
@@ -69,7 +78,10 @@ export class CodeHuntService {
     }
   }
 
-  public async redeemCode(body: RedeemCodeDto) {
+  public async redeemCode(
+    body: RedeemCodeDto,
+    member: ValidateMemberDto,
+  ) {
     try {
       const codeInfo = await this.prismaService.code.findFirst({
         where: {
@@ -84,7 +96,7 @@ export class CodeHuntService {
 
       const redeem = await this.prismaService.code.update({
         where: { id: codeInfo.id },
-        data: { is_used: true, redeemed_by_id: 5 },
+        data: { is_used: true, redeemed_by_id: member.id },
       });
       if (redeem.is_used) {
         return {

@@ -5,9 +5,10 @@ import {
   ValidateMemberDto,
 } from 'src/dtos/auth/auth.dto';
 import { MemberValidator } from 'src/libs/decorators/user.decorators';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/libs/auth/jwt-auth.guard';
 
+@ApiTags('AUTH')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

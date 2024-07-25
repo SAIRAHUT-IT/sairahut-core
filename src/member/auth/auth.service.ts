@@ -1,6 +1,7 @@
 import { HttpService } from '@nestjs/axios';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { MemberRole } from '@prisma/client';
 import * as QueryString from 'qs';
 import {
   GOOGLE_CLIENT_ID,
@@ -49,7 +50,7 @@ export class AuthService {
         client_id: GOOGLE_CLIENT_ID,
         client_secret: GOOGLE_CLIENT_SECRET,
         redirect_uri:
-          'https://e394-161-246-72-2.ngrok-free.app/auth/callback',
+          'https://c8b7-49-228-18-45.ngrok-free.app/auth/callback',
         grant_type: 'authorization_code',
       });
       const tokenInfo: GoogleTokenInterface =
@@ -89,10 +90,20 @@ export class AuthService {
             access_token: this.jwtService.sign(payload),
           };
         } else {
+          const role =
+            member.email.slice(0, 3) === '660'
+              ? MemberRole.SOPHOMORE
+              : member.email.slice(0, 3) === '670'
+              ? MemberRole.FRESHY
+              : MemberRole.SENIOR;
+          const is_major = member.email.slice(3, 5) === '70';
+          if (!is_major)
+            throw new BadRequestException("You're not in faculty");
           const result = await this.prismaService.member.create({
             data: {
               username: `google:${memberInfo.id}`,
               email: memberInfo.email,
+              role: role,
             },
           });
           const payload = {
@@ -112,6 +123,6 @@ export class AuthService {
   }
 
   public generateGoogleURL() {
-    return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${'https://e394-161-246-72-2.ngrok-free.app/auth/callback'}&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email%20https://www.googleapis.com/auth/userinfo.profile`;
+    return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${'https://c8b7-49-228-18-45.ngrok-free.app/auth/callback'}&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email%20https://www.googleapis.com/auth/userinfo.profile`;
   }
 }

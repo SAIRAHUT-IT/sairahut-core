@@ -36,9 +36,9 @@ export class PairerService {
         console.log(
           `Successfully Pair ${self.username} with ${target.username}`,
         );
-        return {
-          message: `Successfully Pair ${self.username} with ${target.username}`,
-        };
+        // return {
+        //   message: `Successfully Pair ${self.username} with ${target.username}`,
+        // };
       }
     } catch (error) {
       throw error;

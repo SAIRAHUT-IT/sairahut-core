@@ -9,14 +9,18 @@ datasource db {
 
 model Member {
   id             Int          @id @default(autoincrement())
+  nickname       String       @default("")
   username       String       @unique
   email          String       @unique
   role           MemberRole   @default(FRESHY)
   status         MemberStatus @default(FREEZE)
   reputation     Int          @default(0)
-  coins          Int          @default(0)
+  token          Int          @default(0)
   this_or_that   String[]
   maximum_member Int          @default(1)
+
+  unlocked_puzzle Json   @default("[]")
+  hint            Hint[]
 
   created_codes  Code[] @relation("Create")
   redeemed_codes Code[] @relation("Redeem")
@@ -26,6 +30,14 @@ model Member {
   paired_with      Member[] @relation("PairedMembers")
 
   code Code[]
+}
+
+model Hint {
+  id          Int     @id @default(autoincrement())
+  content     String
+  is_unlocked Boolean @default(false)
+  member      Member? @relation(fields: [member_id], references: [id])
+  member_id   Int?
 }
 
 model Code {
@@ -53,4 +65,16 @@ enum MemberStatus {
 enum MemberRole {
   FRESHY
   SOPHOMORE
+  SENIOR
 }
+
+enum Elemental {
+  FIRE
+  WATER
+  EARTH
+  AIR
+  LIGHTING
+  PLANT
+}
+
+// Minimal Design Dont Blame Me

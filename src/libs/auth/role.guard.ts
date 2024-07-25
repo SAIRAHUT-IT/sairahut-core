@@ -4,9 +4,6 @@ import {
   ExecutionContext,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-PrismaService;
-
-import { PrismaService } from '../prisma';
 import { MemberRole } from '@prisma/client';
 import { ROLES_KEY } from '../decorators/role.decorators';
 
