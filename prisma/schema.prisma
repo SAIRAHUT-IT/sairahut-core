@@ -10,16 +10,20 @@ datasource db {
 model Member {
   id             Int          @id @default(autoincrement())
   nickname       String       @default("")
-  username       String       @unique
+  username       String
+  student_id     String       @default("")
+  unique_key     String       @default("")
   email          String       @unique
   role           MemberRole   @default(FRESHY)
   status         MemberStatus @default(FREEZE)
+  elemental      Elemental    @default(FIRE)
   reputation     Int          @default(0)
   token          Int          @default(0)
   this_or_that   String[]
   maximum_member Int          @default(1)
 
   unlocked_puzzle Json   @default("[]")
+  puzzle_url      String @default("")
   hint            Hint[]
 
   created_codes  Code[] @relation("Create")
@@ -28,8 +32,6 @@ model Member {
   paired_member_id Int?
   paired_member    Member?  @relation("PairedMembers", fields: [paired_member_id], references: [id])
   paired_with      Member[] @relation("PairedMembers")
-
-  code Code[]
 }
 
 model Hint {
@@ -47,13 +49,10 @@ model Code {
   disabled Boolean @default(false)
 
   redeemed_by_id Int?
-  redeemed_by    Member? @relation("Redeem", fields: [redeemed_by_id], references: [id])
+  redeemed_by    Member? @relation("Redeem", fields: [redeemed_by_id], references: [id], onDelete: Cascade)
 
   creator_id Int
-  creator    Member @relation("Create", fields: [creator_id], references: [id])
-
-  member   Member? @relation(fields: [memberId], references: [id])
-  memberId Int?
+  creator    Member @relation("Create", fields: [creator_id], references: [id], onDelete: Cascade)
 }
 
 enum MemberStatus {

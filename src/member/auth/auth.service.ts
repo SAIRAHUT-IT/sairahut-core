@@ -1,11 +1,12 @@
 import { HttpService } from '@nestjs/axios';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { MemberRole } from '@prisma/client';
+import { Member, MemberRole, MemberStatus } from '@prisma/client';
 import * as QueryString from 'qs';
 import {
   GOOGLE_CLIENT_ID,
   GOOGLE_CLIENT_SECRET,
+  GOOGLE_REDIRECT_URL,
 } from 'src/config/variables';
 import {
   CallBackGoogleDto,
@@ -30,9 +31,24 @@ export class AuthService {
       const result = await this.prismaService.member.findFirst({
         where: { id: body.id },
         include: {
-          code: true,
-          paired_member: true,
+          paired_member: {
+            select: {
+              hint: {
+                where: { is_unlocked: true },
+                select: { content: true },
+                orderBy: {
+                  id: 'asc',
+                },
+              },
+            },
+          },
           paired_with: true,
+          redeemed_codes: true,
+          created_codes:
+            body.role === MemberRole.SOPHOMORE ||
+            body.role === MemberRole.SENIOR
+              ? true
+              : false,
         },
       });
       return result;
@@ -49,8 +65,7 @@ export class AuthService {
         code: callbackGoogleDto.code,
         client_id: GOOGLE_CLIENT_ID,
         client_secret: GOOGLE_CLIENT_SECRET,
-        redirect_uri:
-          'https://c8b7-49-228-18-45.ngrok-free.app/auth/callback',
+        redirect_uri: GOOGLE_REDIRECT_URL,
         grant_type: 'authorization_code',
       });
       const tokenInfo: GoogleTokenInterface =
@@ -91,30 +106,56 @@ export class AuthService {
           };
         } else {
           const role =
-            member.email.slice(0, 3) === '660'
+            memberInfo.email.slice(0, 3) === '660'
               ? MemberRole.SOPHOMORE
-              : member.email.slice(0, 3) === '670'
+              : memberInfo.email.slice(0, 3) === '670'
               ? MemberRole.FRESHY
               : MemberRole.SENIOR;
-          const is_major = member.email.slice(3, 5) === '70';
+          const is_major = memberInfo.email.slice(3, 5) === '70';
           if (!is_major)
             throw new BadRequestException("You're not in faculty");
-          const result = await this.prismaService.member.create({
-            data: {
-              username: `google:${memberInfo.id}`,
-              email: memberInfo.email,
-              role: role,
-            },
-          });
-          const payload = {
-            username: result.username,
-            id: result.id,
-            role: result.role,
-          };
-          return {
-            message: 'เข้าสู่ระบบสำเร็จ',
-            access_token: this.jwtService.sign(payload),
-          };
+          if (role === MemberRole.SENIOR) {
+            const result = await this.prismaService.member.create({
+              data: {
+                nickname: memberInfo.given_name,
+                username: `google:${memberInfo.id}`,
+                email: memberInfo.email,
+                role: role,
+                status: MemberStatus.FREEZE,
+              },
+            });
+            const payload = {
+              username: result.username,
+              id: result.id,
+              role: result.role,
+            };
+            return {
+              message: 'เข้าสู่ระบบสำเร็จ',
+              access_token: this.jwtService.sign(payload),
+            };
+          } else {
+            const result = await this.prismaService.member.update({
+              where: {
+                email: memberInfo.email,
+              },
+              data: {
+                nickname: memberInfo.given_name,
+                username: `google:${memberInfo.id}`,
+                email: memberInfo.email,
+                role: role,
+                status: MemberStatus.UNPAIR,
+              },
+            });
+            const payload = {
+              username: result.username,
+              id: result.id,
+              role: result.role,
+            };
+            return {
+              message: 'เข้าสู่ระบบสำเร็จ',
+              access_token: this.jwtService.sign(payload),
+            };
+          }
         }
       }
     } catch (error) {
@@ -123,6 +164,6 @@ export class AuthService {
   }
 
   public generateGoogleURL() {
-    return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${'https://c8b7-49-228-18-45.ngrok-free.app/auth/callback'}&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email%20https://www.googleapis.com/auth/userinfo.profile`;
+    return `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${GOOGLE_REDIRECT_URL}&response_type=code&scope=https://www.googleapis.com/auth/userinfo.email%20https://www.googleapis.com/auth/userinfo.profile`;
   }
 }

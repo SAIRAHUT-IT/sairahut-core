@@ -12,6 +12,7 @@ export class CodeHuntService {
   constructor(private prismaService: PrismaService) {}
 
   private async generateQrcode(value: string) {
+    console.log(value);
     const result = qrcode
       .toDataURL(value || 'SAIRAHUT_IT', {
         errorCorrectionLevel: 'H',
@@ -41,6 +42,7 @@ export class CodeHuntService {
   }
 
   public async generateCode(member: ValidateMemberDto) {
+    console.log(member);
     try {
       const checker = await this.prismaService.code.count({
         where: {
@@ -50,15 +52,14 @@ export class CodeHuntService {
         },
       });
       if (checker >= 2) {
-        await this.prismaService.code.updateMany({
+        await this.prismaService.code.deleteMany({
           where: {
             creator_id: member.id,
-            disabled: false,
             is_used: false,
           },
-          data: { disabled: true },
         });
       }
+
       const creator = await this.prismaService.code.create({
         data: {
           creator_id: member.id,
@@ -89,6 +90,20 @@ export class CodeHuntService {
         },
       });
       if (!codeInfo) throw new NotFoundException('ไม่พบโค้ด');
+      const redeemedBefore = await this.prismaService.code.findFirst({
+        where: {
+          redeemed_by_id: member.id,
+          creator_id: codeInfo.creator_id,
+          is_used: true,
+        },
+      });
+      if (redeemedBefore)
+        throw new BadRequestException('ไม่สามารถใช้โค้ดจากพี่คนเดิม');
+
+      const sameCreator = codeInfo.creator_id === member.id;
+      if (sameCreator)
+        throw new BadRequestException('ไม่สามารถใช้โค้ดของตัวเองได้');
+
       if (codeInfo.disabled || codeInfo.is_used)
         throw new BadRequestException(
           '(โค้ดนี้ถูกใช้งานแล้ว / โค้ดถูกสร้างขึ้นใหม่)',
@@ -97,6 +112,19 @@ export class CodeHuntService {
       const redeem = await this.prismaService.code.update({
         where: { id: codeInfo.id },
         data: { is_used: true, redeemed_by_id: member.id },
+      });
+      await this.prismaService.member.updateMany({
+        where: {
+          id: { in: [member.id, redeem.creator_id] },
+        },
+        data: {
+          reputation: {
+            increment: 1,
+          },
+          token: {
+            increment: 1,
+          },
+        },
       });
       if (redeem.is_used) {
         return {
