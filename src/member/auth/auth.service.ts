@@ -25,14 +25,14 @@ export class AuthService {
     private httpService: HttpService,
     private jwtService: JwtService,
   ) {}
-
   public async validateMember(body: ValidateMemberDto) {
     try {
-      const result = await this.prismaService.member.findFirst({
+      const member = await this.prismaService.member.findFirst({
         where: { id: body.id },
         include: {
           paired_member: {
             select: {
+              elemental: true,
               hint: {
                 where: { is_unlocked: true },
                 select: { content: true },
@@ -51,9 +51,38 @@ export class AuthService {
               : false,
         },
       });
-      return result;
+
+      if (!member) {
+        throw new Error('Member not found');
+      }
+
+      const overall = await this.prismaService.member.findMany({
+        where: { status: 'UNPAIR' },
+        orderBy: { reputation: 'desc' },
+      });
+
+      const {
+        elemental: pairedElemental,
+        hint,
+        ...pairedMemberDetails
+      } = member.paired_member || {};
+      const pairedMember = member.paired_member
+        ? { ...pairedMemberDetails, elemental: pairedElemental }
+        : null;
+
+      return {
+        ...member,
+        elemental:
+          !member.paired_member || member.role !== 'FRESHY'
+            ? member.elemental
+            : 'NONE',
+        hint: hint?.map((e) => e.content),
+        paired_member: pairedMember,
+        ranking:
+          overall.findIndex((e) => e.id === member.id) + 1 || 999,
+      };
     } catch (error) {
-      throw error;
+      throw new Error(`Failed to validate member: ${error.message}`);
     }
   }
 

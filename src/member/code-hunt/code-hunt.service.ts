@@ -12,7 +12,6 @@ export class CodeHuntService {
   constructor(private prismaService: PrismaService) {}
 
   private async generateQrcode(value: string) {
-    console.log(value);
     const result = qrcode
       .toDataURL(value || 'SAIRAHUT_IT', {
         errorCorrectionLevel: 'H',
@@ -42,7 +41,6 @@ export class CodeHuntService {
   }
 
   public async generateCode(member: ValidateMemberDto) {
-    console.log(member);
     try {
       const checker = await this.prismaService.code.count({
         where: {
@@ -74,6 +72,28 @@ export class CodeHuntService {
           code: creator.code,
         },
       };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  public async leaderboard(member: ValidateMemberDto) {
+    try {
+      const result = await this.prismaService.member.findMany({
+        where: {
+          role: member.role,
+          status: 'UNPAIR',
+        },
+        orderBy: {
+          reputation: 'desc',
+        },
+        select: {
+          nickname: true,
+          reputation: true,
+        },
+        take: 10,
+      });
+      return result;
     } catch (error) {
       throw error;
     }

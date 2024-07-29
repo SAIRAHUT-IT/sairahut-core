@@ -38,4 +38,9 @@ export class CodeHuntController {
   ) {
     return this.codeHuntService.redeemCode(body, member);
   }
+
+  @Get('leaderboard')
+  leaderboard(@MemberValidator() member: ValidateMemberDto) {
+    return this.codeHuntService.leaderboard(member);
+  }
 }

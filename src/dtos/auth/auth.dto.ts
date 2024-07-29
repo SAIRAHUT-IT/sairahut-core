@@ -1,3 +1,4 @@
+import { MemberRole } from '@prisma/client';
 import { z } from 'zod';
 
 export const callbackGoogleDto = z
@@ -25,5 +26,5 @@ export type CallBackGoogleDto = z.infer<typeof callbackGoogleDto>;
 export class ValidateMemberDto {
   id: number;
   username: string;
-  role: string;
+  role: MemberRole;
 }
