@@ -16,7 +16,7 @@ model Member {
   email          String       @unique
   role           MemberRole   @default(FRESHY)
   status         MemberStatus @default(FREEZE)
-  elemental      Elemental    @default(FIRE)
+  elemental      Elemental    @default(NONE)
   reputation     Int          @default(0)
   token          Int          @default(0)
   this_or_that   String[]
@@ -68,6 +68,7 @@ enum MemberRole {
 }
 
 enum Elemental {
+  NONE
   FIRE
   WATER
   EARTH
