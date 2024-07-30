@@ -129,6 +129,10 @@ export class AuthService {
             username: member.username,
             role: member.role,
           };
+          await this.prismaService.member.update({
+            where: { id: member.id },
+            data: { avartarURL: memberInfo.picture },
+          });
           return {
             message: 'เข้าสู่ระบบสำเร็จ',
             access_token: this.jwtService.sign(payload),
