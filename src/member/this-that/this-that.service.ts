@@ -1,37 +1,31 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { MemberRole, MemberStatus } from '@prisma/client';
-import { ValidateMemberDto } from 'src/dtos/auth/auth.dto';
-import { ThisOrThatDto } from 'src/dtos/this-that/this-that.dto';
-import { PrismaService } from 'src/libs/prisma';
+<script>
+	import * as Avatar from '$lib/components/ui/avatar';
+	import { session } from '$lib/stores/member.store';
+</script>
 
-@Injectable()
-export class ThisThatService {
-  constructor(private prismaService: PrismaService) {}
+<nav
+	class="sticky top-0 flex w-full justify-between items-center bg-gradient-to-r from-black to-yellow-900 px-4 z-[1500]"
+>
+	<!-- Use a button for the logo navigation as well -->
+	<button
+		on:click={() => {
+			window.location.replace('/menu');
+		}}
+		class="flex items-center"
+	>
+		<img src="/logo.svg" alt="logo" class="object-cover w-28" />
+	</button>
 
-  public async patchThisThat(
-    body: ThisOrThatDto,
-    member: ValidateMemberDto,
-  ) {
-    try {
-      const checker = await this.prismaService.member.findFirst({
-        where: { id: member.id },
-      });
-      if (checker.this_or_that.length > 0)
-        throw new BadRequestException('คุณได้ทำแบบสำรวจไปแล้ว');
-      await this.prismaService.member.update({
-        where: {
-          id: member.id,
-          status: MemberStatus.UNPAIR,
-        },
-        data: {
-          this_or_that: { push: body.payload },
-        },
-      });
-      return {
-        message: 'ทำแบบสำรวจสำเร็จ',
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-}
+	<!-- Use button for the user profile navigation -->
+	<button
+		on:click={() => {
+			window.location.replace('/@me');
+		}}
+		class="flex items-center"
+	>
+		<Avatar.Root>
+			<Avatar.Image src={$session.avatarURL} alt="@sairahut" />
+			<Avatar.Fallback>IT</Avatar.Fallback>
+		</Avatar.Root>
+	</button>
+</nav>

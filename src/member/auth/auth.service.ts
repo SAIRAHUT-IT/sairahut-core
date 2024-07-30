@@ -181,7 +181,7 @@ export class AuthService {
               data: {
                 // nickname: memberInfo.given_name,
                 username: `google:${memberInfo.id}`,
-                avartarURL: memberInfo.picture,
+                avatarURL: memberInfo.picture,
                 email: memberInfo.email,
                 role:
                   role == 'FRESHY'

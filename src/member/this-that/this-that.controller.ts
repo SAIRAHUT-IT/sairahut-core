@@ -16,7 +16,7 @@ export class ThisThatController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Role(MemberRole.FRESHY)
+  // @Role(MemberRole.FRESHY)
   @Patch()
   patchThisOrThat(
     @Body() body: ThisOrThatDto,
