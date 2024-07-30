@@ -1,4 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import { MemberRole, MemberStatus } from '@prisma/client';
 import { ValidateMemberDto } from 'src/dtos/auth/auth.dto';
 import { ThisOrThatDto } from 'src/dtos/this-that/this-that.dto';
 import { PrismaService } from 'src/libs/prisma';
@@ -20,6 +21,7 @@ export class ThisThatService {
       await this.prismaService.member.update({
         where: {
           id: member.id,
+          status: MemberStatus.UNPAIR,
         },
         data: {
           this_or_that: { push: body.payload },

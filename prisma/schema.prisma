@@ -59,6 +59,7 @@ enum MemberStatus {
   PAIRED
   UNPAIR
   FREEZE
+  FORM
 }
 
 enum MemberRole {

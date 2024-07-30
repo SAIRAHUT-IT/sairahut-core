@@ -124,6 +124,15 @@ export class AuthService {
           },
         });
         if (member) {
+          if (
+            member.status == MemberStatus.FREEZE &&
+            member.role != MemberRole.SENIOR
+          ) {
+            await this.prismaService.member.update({
+              where: { id: member.id },
+              data: { status: MemberStatus.FORM },
+            });
+          }
           const payload = {
             id: member.id,
             username: member.username,
@@ -169,28 +178,33 @@ export class AuthService {
               access_token: this.jwtService.sign(payload),
             };
           } else {
-            const result = await this.prismaService.member.update({
-              where: {
-                email: memberInfo.email,
-              },
-              data: {
-                nickname: memberInfo.given_name,
-                username: `google:${memberInfo.id}`,
-                email: memberInfo.email,
-                role: role,
-                status: MemberStatus.UNPAIR,
-              },
-            });
-            const payload = {
-              username: result.username,
-              id: result.id,
-              role: result.role,
-            };
-            return {
-              message: 'เข้าสู่ระบบสำเร็จ',
-              access_token: this.jwtService.sign(payload),
-            };
+            throw new BadRequestException(
+              'ไม่มีสิทธิ์ในการเล่นกิจกรรมสายรหัส',
+            );
           }
+          //  else {
+          //   const result = await this.prismaService.member.update({
+          //     where: {
+          //       email: memberInfo.email,
+          //     },
+          //     data: {
+          //       nickname: memberInfo.given_name,
+          //       username: `google:${memberInfo.id}`,
+          //       email: memberInfo.email,
+          //       role: role,
+          //       status: MemberStatus.UNPAIR,
+          //     },
+          //   });
+          //   const payload = {
+          //     username: result.username,
+          //     id: result.id,
+          //     role: result.role,
+          //   };
+          //   return {
+          //     message: 'เข้าสู่ระบบสำเร็จ',
+          //     access_token: this.jwtService.sign(payload),
+          //   };
+          // }
         }
       }
     } catch (error) {
