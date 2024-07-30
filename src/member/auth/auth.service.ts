@@ -143,7 +143,13 @@ export class AuthService {
           const is_major = memberInfo.email.slice(3, 5) === '70';
           if (!is_major)
             throw new BadRequestException("You're not in faculty");
-          if (role === MemberRole.SENIOR) {
+          const checker = await this.prismaService.member.findFirst({
+            where: {
+              email: memberInfo.email,
+              role: MemberRole.SOPHOMORE,
+            },
+          });
+          if (role === MemberRole.SENIOR && !checker) {
             const result = await this.prismaService.member.create({
               data: {
                 nickname: memberInfo.given_name,
