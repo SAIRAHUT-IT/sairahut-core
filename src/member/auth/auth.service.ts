@@ -179,11 +179,14 @@ export class AuthService {
                 email: memberInfo.email,
               },
               data: {
-                nickname: memberInfo.given_name,
+                // nickname: memberInfo.given_name,
                 username: `google:${memberInfo.id}`,
                 avartarURL: memberInfo.picture,
                 email: memberInfo.email,
-                role: role,
+                role:
+                  role == 'FRESHY'
+                    ? MemberRole.FRESHY
+                    : MemberRole.SOPHOMORE,
                 status: MemberStatus.FORM,
               },
             });
