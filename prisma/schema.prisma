@@ -16,7 +16,7 @@ model Member {
   email          String       @unique
   role           MemberRole   @default(FRESHY)
   status         MemberStatus @default(FREEZE)
-  avartarURL     String       @default("")
+  avatarURL      String       @default("")
   elemental      Elemental    @default(NONE)
   reputation     Int          @default(0)
   token          Int          @default(0)

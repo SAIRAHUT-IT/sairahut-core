@@ -57,7 +57,7 @@ export class AuthService {
       }
 
       const overall = await this.prismaService.member.findMany({
-        where: { status: 'UNPAIR' },
+        where: { role: member.role },
         orderBy: { reputation: 'desc' },
       });
 
@@ -131,7 +131,7 @@ export class AuthService {
           };
           await this.prismaService.member.update({
             where: { id: member.id },
-            data: { avartarURL: memberInfo.picture },
+            data: { avatarURL: memberInfo.picture },
           });
           return {
             message: 'เข้าสู่ระบบสำเร็จ',
@@ -158,7 +158,7 @@ export class AuthService {
               data: {
                 nickname: memberInfo.given_name,
                 username: `google:${memberInfo.id}`,
-                avartarURL: memberInfo.picture,
+                avatarURL: memberInfo.picture,
                 email: memberInfo.email,
                 role: role,
                 status: MemberStatus.FORM,

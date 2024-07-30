@@ -82,7 +82,6 @@ export class CodeHuntService {
       const result = await this.prismaService.member.findMany({
         where: {
           role: member.role,
-          status: 'UNPAIR',
         },
         orderBy: {
           reputation: 'desc',
