@@ -129,6 +129,14 @@ export class AuthService {
             username: member.username,
             role: member.role,
           };
+          const updater_payload = {
+            avatarURL: memberInfo.picture,
+          };
+          if (member.role == MemberRole.FRESHY) {
+            Object.assign(updater_payload, {
+              nickname: memberInfo.given_name,
+            });
+          }
           await this.prismaService.member.update({
             where: { id: member.id },
             data: { avatarURL: memberInfo.picture },
