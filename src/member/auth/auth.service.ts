@@ -120,6 +120,7 @@ export class AuthService {
         const member = await this.prismaService.member.findFirst({
           where: {
             // username: `google:${memberInfo.id}`,
+            status: { not: 'FREEZE' },
             email: memberInfo.email,
           },
         });
