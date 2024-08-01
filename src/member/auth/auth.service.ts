@@ -183,21 +183,26 @@ export class AuthService {
               access_token: this.jwtService.sign(payload),
             };
           } else {
+            const update_payload = {
+              username: `google:${memberInfo.id}`,
+              avatarURL: memberInfo.picture,
+              email: memberInfo.email,
+              role:
+                role == 'FRESHY'
+                  ? MemberRole.FRESHY
+                  : MemberRole.SOPHOMORE,
+              status: MemberStatus.FORM,
+            };
+            if (role == 'FRESHY') {
+              Object.assign(update_payload, {
+                nickname: memberInfo.given_name,
+              });
+            }
             const result = await this.prismaService.member.update({
               where: {
                 email: memberInfo.email,
               },
-              data: {
-                // nickname: memberInfo.given_name,
-                username: `google:${memberInfo.id}`,
-                avatarURL: memberInfo.picture,
-                email: memberInfo.email,
-                role:
-                  role == 'FRESHY'
-                    ? MemberRole.FRESHY
-                    : MemberRole.SOPHOMORE,
-                status: MemberStatus.FORM,
-              },
+              data: update_payload,
             });
             const payload = {
               username: result.username,
