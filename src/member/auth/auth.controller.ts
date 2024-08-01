@@ -1,7 +1,15 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Patch,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
   CallBackGoogleDto,
+  PatchNickNameDto,
   ValidateMemberDto,
 } from 'src/dtos/auth/auth.dto';
 import { MemberValidator } from 'src/libs/decorators/user.decorators';
@@ -20,6 +28,16 @@ export class AuthController {
     @MemberValidator() validateMemberDto: ValidateMemberDto,
   ) {
     return this.authService.validateMember(validateMemberDto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Patch('nickname')
+  patchNickName(
+    @Body() body: PatchNickNameDto,
+    @MemberValidator() member: ValidateMemberDto,
+  ) {
+    return this.authService.patchNickName(body, member);
   }
 
   @Get('callback')

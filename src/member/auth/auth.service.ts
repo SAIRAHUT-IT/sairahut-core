@@ -10,6 +10,7 @@ import {
 } from 'src/config/variables';
 import {
   CallBackGoogleDto,
+  PatchNickNameDto,
   ValidateMemberDto,
 } from 'src/dtos/auth/auth.dto';
 import {
@@ -25,6 +26,27 @@ export class AuthService {
     private httpService: HttpService,
     private jwtService: JwtService,
   ) {}
+
+  public async patchNickName(
+    body: PatchNickNameDto,
+    member: ValidateMemberDto,
+  ) {
+    try {
+      if (body.nickname.length > 10 || body.nickname.length < 3)
+        throw new BadRequestException(
+          'ต้องตั้งชื่อมากกว่า 3 ตัวและน้อยกว่า 10 ตัว',
+        );
+      await this.prismaService.member.update({
+        where: { id: member.id },
+        data: { nickname: body.nickname },
+      });
+      return {
+        message: 'เปลี่ยนชื่อเล่นสำเร็จ',
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
   public async validateMember(body: ValidateMemberDto) {
     try {
       const member = await this.prismaService.member.findFirst({

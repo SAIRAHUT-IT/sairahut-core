@@ -1,4 +1,12 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { MemberRole } from '@prisma/client';
+import {
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+  MinLength,
+} from 'class-validator';
 import { z } from 'zod';
 
 export const callbackGoogleDto = z
@@ -27,4 +35,14 @@ export class ValidateMemberDto {
   id: number;
   username: string;
   role: MemberRole;
+}
+
+export class PatchNickNameDto {
+  @ApiProperty()
+  @IsString()
+  @MinLength(3, { message: 'nickname must be at least 3 characters' })
+  @MaxLength(10, {
+    message: 'nickname must not be more than 10 characters',
+  })
+  nickname: string;
 }
