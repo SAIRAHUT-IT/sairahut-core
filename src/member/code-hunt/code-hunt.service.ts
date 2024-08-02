@@ -5,7 +5,10 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/libs/prisma';
 import * as qrcode from 'qrcode';
-import { RedeemCodeDto } from 'src/dtos/code-hunt-dto/redeem.dto';
+import {
+  QueryLeaderboardDto,
+  RedeemCodeDto,
+} from 'src/dtos/code-hunt-dto/redeem.dto';
 import { ValidateMemberDto } from 'src/dtos/auth/auth.dto';
 @Injectable()
 export class CodeHuntService {
@@ -77,12 +80,20 @@ export class CodeHuntService {
     }
   }
 
-  public async leaderboard(member: ValidateMemberDto) {
+  public async leaderboard(
+    query: QueryLeaderboardDto,
+    member: ValidateMemberDto,
+  ) {
     try {
+      const isFreshy = query.freshy == 'true';
+      const payload = {
+        role:
+          isFreshy && member.role !== 'FRESHY'
+            ? 'FRESHY'
+            : member.role,
+      };
       const result = await this.prismaService.member.findMany({
-        where: {
-          role: member.role,
-        },
+        where: payload,
         orderBy: {
           reputation: 'desc',
         },

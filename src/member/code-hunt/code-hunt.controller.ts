@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Query,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
@@ -10,7 +11,10 @@ import { CodeHuntService } from './code-hunt.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle, ThrottlerGuard } from '@nestjs/throttler';
 import { ZodValidationPipe } from 'src/libs/zod-validation.pipe';
-import { RedeemCodeDto } from 'src/dtos/code-hunt-dto/redeem.dto';
+import {
+  QueryLeaderboardDto,
+  RedeemCodeDto,
+} from 'src/dtos/code-hunt-dto/redeem.dto';
 import { RolesGuard } from 'src/libs/auth/role.guard';
 import { Role } from 'src/libs/decorators/role.decorators';
 import { MemberRole } from '@prisma/client';
@@ -42,7 +46,10 @@ export class CodeHuntController {
   }
 
   @Get('leaderboard')
-  leaderboard(@MemberValidator() member: ValidateMemberDto) {
-    return this.codeHuntService.leaderboard(member);
+  leaderboard(
+    @Query() query: QueryLeaderboardDto,
+    @MemberValidator() member: ValidateMemberDto,
+  ) {
+    return this.codeHuntService.leaderboard(query, member);
   }
 }
