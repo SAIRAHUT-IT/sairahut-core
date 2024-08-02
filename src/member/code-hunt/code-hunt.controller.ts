@@ -32,7 +32,7 @@ export class CodeHuntController {
   }
 
   @Role(MemberRole.FRESHY)
-  @UseGuards(ThrottlerGuard)
+  // @UseGuards(ThrottlerGuard)
   @Post('redeem')
   redeemCode(
     @Body() body: RedeemCodeDto,
