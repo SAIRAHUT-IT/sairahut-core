@@ -25,7 +25,7 @@ import { ValidateMemberDto } from 'src/dtos/auth/auth.dto';
 export class CodeHuntController {
   constructor(private readonly codeHuntService: CodeHuntService) {}
 
-  @Role(MemberRole.SOPHOMORE)
+  @Role(MemberRole.SOPHOMORE, MemberRole.SENIOR)
   @Get('generate')
   generateCode(@MemberValidator() member: ValidateMemberDto) {
     return this.codeHuntService.generateCode(member);
