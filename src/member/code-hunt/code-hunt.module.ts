@@ -7,7 +7,14 @@ import { RolesGuard } from 'src/libs/auth/role.guard';
 import { JwtStrategy } from 'src/libs/auth/jwt.strategy';
 
 @Module({
-  imports: [],
+  imports: [
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 20,
+      },
+    ]),
+  ],
   controllers: [CodeHuntController],
   providers: [
     CodeHuntService,

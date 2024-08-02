@@ -31,6 +31,8 @@ export class CodeHuntController {
     return this.codeHuntService.generateCode(member);
   }
 
+  @Role(MemberRole.FRESHY)
+  @UseGuards(ThrottlerGuard)
   @Post('redeem')
   redeemCode(
     @Body() body: RedeemCodeDto,
