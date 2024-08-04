@@ -10,6 +10,7 @@ import {
 } from 'src/config/variables';
 import {
   CallBackGoogleDto,
+  PatchInfoDto,
   PatchNickNameDto,
   ValidateMemberDto,
 } from 'src/dtos/auth/auth.dto';
@@ -47,6 +48,28 @@ export class AuthService {
       throw error;
     }
   }
+
+  public async patchInfo(
+    body: PatchInfoDto,
+    member: ValidateMemberDto,
+  ) {
+    try {
+      await this.prismaService.member.update({
+        where: { id: member.id },
+        data: {
+          real_nickname: body.real_nickname,
+          contact: body.contact,
+          branch: body.branch,
+        },
+      });
+      return {
+        message: 'อัพเดทข้อมูลสำเร็จ',
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
   public async validateMember(body: ValidateMemberDto) {
     try {
       const member = await this.prismaService.member.findFirst({
@@ -71,6 +94,7 @@ export class AuthService {
             body.role === MemberRole.SENIOR
               ? true
               : false,
+          ticket: true,
         },
       });
 

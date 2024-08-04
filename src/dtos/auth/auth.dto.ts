@@ -40,9 +40,24 @@ export class ValidateMemberDto {
 export class PatchNickNameDto {
   @ApiProperty()
   @IsString()
-  @MinLength(3, { message: 'nickname must be at least 3 characters' })
+  @MinLength(2, { message: 'nickname must be at least 3 characters' })
   @MaxLength(10, {
     message: 'nickname must not be more than 10 characters',
   })
   nickname: string;
+}
+
+export class PatchInfoDto {
+  @ApiProperty()
+  @IsString()
+  @MinLength(2, { message: 'nickname must be at least 3 characters' })
+  real_nickname: string;
+
+  @ApiProperty()
+  @IsString()
+  contact: string;
+
+  @ApiProperty()
+  @IsString()
+  branch: string;
 }

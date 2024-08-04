@@ -9,6 +9,7 @@ import {
 import { AuthService } from './auth.service';
 import {
   CallBackGoogleDto,
+  PatchInfoDto,
   PatchNickNameDto,
   ValidateMemberDto,
 } from 'src/dtos/auth/auth.dto';
@@ -28,6 +29,16 @@ export class AuthController {
     @MemberValidator() validateMemberDto: ValidateMemberDto,
   ) {
     return this.authService.validateMember(validateMemberDto);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Patch('@me/info')
+  patchInfo(
+    @Body() body: PatchInfoDto,
+    @MemberValidator() validateMemberDto: ValidateMemberDto,
+  ) {
+    return this.authService.patchInfo(body, validateMemberDto);
   }
 
   @ApiBearerAuth()

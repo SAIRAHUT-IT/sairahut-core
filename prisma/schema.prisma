@@ -10,6 +10,9 @@ datasource db {
 model Member {
   id             Int          @id @default(autoincrement())
   nickname       String       @default("")
+  real_nickname  String       @default("")
+  contact        String       @default("")
+  branch         String       @default("")
   username       String
   student_id     String       @default("")
   unique_key     String       @default("")
@@ -22,6 +25,11 @@ model Member {
   token          Int          @default(0)
   this_or_that   String[]
   maximum_member Int          @default(1)
+
+  ticket Ticket[]
+
+  bingo_board       Json     @default("[]")
+  bingo_member_list String[]
 
   unlocked_puzzle Json   @default("[]")
   puzzle_url      String @default("")
@@ -54,6 +62,14 @@ model Code {
 
   creator_id Int
   creator    Member @relation("Create", fields: [creator_id], references: [id], onDelete: Cascade)
+}
+
+model Ticket {
+  id        Int     @id @default(autoincrement())
+  title     String  @default("ตั๋ว")
+  is_used   Boolean @default(false)
+  member    Member? @relation(fields: [member_id], references: [id])
+  member_id Int?
 }
 
 enum MemberStatus {
