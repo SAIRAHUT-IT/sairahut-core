@@ -3,6 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
+import { MemberRole } from '@prisma/client';
 import { ValidateMemberDto } from 'src/dtos/auth/auth.dto';
 import {
   QuestionDto,
@@ -154,7 +155,10 @@ export class BingoService {
         throw new BadRequestException('คำถามนี้ถูกตรวจสอบแล้ว');
       }
       const soph = await this.prismaService.member.findFirst({
-        where: { unique_key: payload.key },
+        where: {
+          unique_key: payload.key,
+          role: MemberRole.SOPHOMORE,
+        },
       });
       if (!soph) throw new BadRequestException('ไม่สามารถปลดล็อคได้');
       const new_board = splitted_board.map((row) => {
