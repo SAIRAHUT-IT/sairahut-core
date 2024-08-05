@@ -122,6 +122,8 @@ export class BingoService {
     member_: ValidateMemberDto,
   ) {
     try {
+      if (payload.key.length !== 6)
+        throw new BadRequestException('กรุณากรอก key ให้ครบ 6 ตัว');
       const member = await this.prismaService.member.findUnique({
         where: { id: member_.id },
       });
