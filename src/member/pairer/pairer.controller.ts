@@ -9,6 +9,6 @@ export class PairerController {
 
   @Get()
   getPaired() {
-    return this.pairerService.pairer();
+    return 'KKK';
   }
 }
