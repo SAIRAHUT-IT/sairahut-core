@@ -51,9 +51,14 @@ export class AuthController {
     return this.authService.patchNickName(body, member);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Patch('hint/unlock')
+  unlockHint(@MemberValidator() member: ValidateMemberDto) {
+    return this.authService.unlockHint(member);
+  }
   @Get('callback')
   googleCallbackLogin(@Query() query: CallBackGoogleDto) {
-    console.log(query);
     return this.authService.googleCallbackLogin(query);
   }
 

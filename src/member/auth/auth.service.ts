@@ -115,7 +115,6 @@ export class AuthService {
       const pairedMember = member.paired_member
         ? { ...pairedMemberDetails, elemental: pairedElemental }
         : null;
-
       return {
         ...member,
         elemental:
@@ -265,6 +264,95 @@ export class AuthService {
     } catch (error) {
       throw error;
     }
+  }
+
+  public async unlockHint(member: ValidateMemberDto) {
+    try {
+      const result = await this.prismaService.member.findFirst({
+        where: { id: member.id },
+        include: {
+          paired_member: {
+            select: {
+              id: true,
+              hint: {
+                select: {
+                  id: true,
+                  content: true,
+                  is_unlocked: true,
+                },
+                orderBy: { id: 'asc' },
+              },
+            },
+          },
+        },
+      });
+      if (!result.paired_member)
+        throw new BadRequestException('ไม่พบเจ้าสำนัก');
+      const hint = result.paired_member.hint;
+      const unlocked_hint = hint.filter((e) => e.is_unlocked);
+      const locked_hint = hint.filter((e) => !e.is_unlocked);
+      if (locked_hint.length <= 0) {
+        throw new BadRequestException('คำใบ้ปลดล็อคครบแล้ว');
+      }
+      if (!this.checkHintPhase(unlocked_hint.length + 1))
+        throw new BadRequestException(
+          'วันนี้ไม่สามารถปลดล็อคคำใบ้เพิ่มได้',
+        );
+      const selected_hint = locked_hint[0];
+      const price = this.checkPrice(unlocked_hint.length + 1);
+      if (result.token < price)
+        throw new BadRequestException('Chakras ไม่เพียงพอ');
+      await this.prismaService.hint.update({
+        where: {
+          id: selected_hint.id,
+          member_id: result.paired_member.id,
+        },
+        data: { is_unlocked: true },
+      });
+      await this.prismaService.member.update({
+        where: { id: member.id },
+        data: {
+          token: {
+            decrement: price,
+          },
+        },
+      });
+      return {
+        message: `ปลดล็อคคำใบ้ที่ ${unlocked_hint.length + 1} สำเร็จ`,
+      };
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  private checkHintPhase(next: number) {
+    const phase = {
+      8: [1],
+      9: [1, 2],
+      10: [1, 2, 3],
+      11: [1, 2, 3, 4],
+      12: [1, 2, 3, 4, 5, 6],
+      13: [1, 2, 3, 4, 5, 6, 7],
+    };
+    const day = new Date().getDate();
+    if (!phase[day]) return false;
+    const phase_range = day > 13 ? [1, 2, 3, 4, 5, 6, 7] : phase[day];
+    const valid = phase_range.includes(next);
+    if (!valid) return false;
+    return true;
+  }
+
+  private checkPrice(next: number) {
+    const price = {
+      1: 5,
+      2: 5,
+      3: 10,
+      4: 10,
+      5: 15,
+      6: 20,
+      7: 25,
+    };
+    return price[next];
   }
 
   public generateGoogleURL() {
