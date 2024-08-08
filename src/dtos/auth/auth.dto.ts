@@ -48,16 +48,18 @@ export class PatchNickNameDto {
 }
 
 export class PatchInfoDto {
-  @ApiProperty()
+  @ApiProperty({ required: true })
   @IsString()
   @MinLength(2, { message: 'nickname must be at least 3 characters' })
   real_nickname: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: true })
   @IsString()
+  @MinLength(4, { message: 'contact must be at least 3 characters' })
   contact: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: true })
   @IsString()
+  @MinLength(2, { message: 'branch must be at least 3 characters' })
   branch: string;
 }

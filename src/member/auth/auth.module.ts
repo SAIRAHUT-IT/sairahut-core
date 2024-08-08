@@ -3,9 +3,9 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { HttpModule } from '@nestjs/axios';
 import { PrismaService } from 'src/libs/prisma';
-import { JwtModule, JwtService } from '@nestjs/jwt';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from 'src/libs/auth/jwt.strategy';
+import { RolesGuard } from 'src/libs/auth/role.guard';
 
 @Module({
   imports: [
@@ -18,6 +18,6 @@ import { JwtStrategy } from 'src/libs/auth/jwt.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, PrismaService, JwtStrategy],
+  providers: [AuthService, PrismaService, JwtStrategy, RolesGuard],
 })
 export class AuthModule {}

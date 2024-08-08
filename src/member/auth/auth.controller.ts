@@ -16,6 +16,9 @@ import {
 import { MemberValidator } from 'src/libs/decorators/user.decorators';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/libs/auth/jwt-auth.guard';
+import { RolesGuard } from 'src/libs/auth/role.guard';
+import { Role } from 'src/libs/decorators/role.decorators';
+import { MemberRole } from '@prisma/client';
 
 @ApiTags('AUTH')
 @Controller('auth')
@@ -52,7 +55,8 @@ export class AuthController {
   }
 
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @Role(MemberRole.FRESHY)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Patch('hint/unlock')
   unlockHint(@MemberValidator() member: ValidateMemberDto) {
     return this.authService.unlockHint(member);
