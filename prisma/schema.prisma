@@ -33,7 +33,6 @@ model Member {
 
   unlocked_puzzle Json   @default("[]")
   puzzle_url      String @default("")
-  // is_puzzle_solved_today Boolean @default(false)
   hint            Hint[]
 
   created_codes  Code[] @relation("Create")
