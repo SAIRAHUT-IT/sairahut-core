@@ -2,6 +2,7 @@ import { HttpService } from '@nestjs/axios';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { Member, MemberRole, MemberStatus } from '@prisma/client';
+import { Mutex, MutexInterface } from 'async-mutex';
 import * as QueryString from 'qs';
 import {
   GOOGLE_CLIENT_ID,
@@ -22,11 +23,14 @@ import { PrismaService } from 'src/libs/prisma';
 
 @Injectable()
 export class AuthService {
+  private lock: Map<number, MutexInterface>;
   constructor(
     private prismaService: PrismaService,
     private httpService: HttpService,
     private jwtService: JwtService,
-  ) {}
+  ) {
+    this.lock = new Map();
+  }
 
   public async patchNickName(
     body: PatchNickNameDto,
@@ -267,6 +271,12 @@ export class AuthService {
   }
 
   public async unlockHint(member: ValidateMemberDto) {
+    if (!this.lock.has(member.id)) {
+      this.lock.set(member.id, new Mutex());
+    }
+
+    const release = await this.lock.get(member.id).acquire();
+
     try {
       const result = await this.prismaService.member.findFirst({
         where: { id: member.id },
@@ -330,6 +340,8 @@ export class AuthService {
       };
     } catch (error) {
       throw error;
+    } finally {
+      release();
     }
   }
 
