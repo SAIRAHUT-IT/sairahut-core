@@ -302,6 +302,14 @@ export class AuthService {
       const price = this.checkPrice(unlocked_hint.length + 1);
       if (result.token < price)
         throw new BadRequestException('Chakras ไม่เพียงพอ');
+      await this.prismaService.member.update({
+        where: { id: member.id },
+        data: {
+          token: {
+            decrement: price,
+          },
+        },
+      });
       await this.prismaService.hint.update({
         where: {
           id: selected_hint.id,
