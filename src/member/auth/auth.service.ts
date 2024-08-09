@@ -275,7 +275,8 @@ export class AuthService {
       this.lock.set(member.id, new Mutex());
     }
 
-    const release = await this.lock.get(member.id).acquire();
+    const mutex = this.lock.get(member.id);
+    const release = await mutex.acquire();
 
     try {
       const result = await this.prismaService.member.findFirst({
@@ -304,40 +305,36 @@ export class AuthService {
       if (locked_hint.length <= 0) {
         throw new BadRequestException('คำใบ้ปลดล็อคครบแล้ว');
       }
-      if (!this.checkHintPhase(unlocked_hint.length + 1))
+      if (!(await this.checkHintPhase(unlocked_hint.length + 1)))
         throw new BadRequestException(
           'วันนี้ไม่สามารถปลดล็อคคำใบ้เพิ่มได้',
         );
       const selected_hint = locked_hint[0];
-      const price = this.checkPrice(unlocked_hint.length + 1);
+      const price = await this.checkPrice(unlocked_hint.length + 1);
       if (result.token < price)
         throw new BadRequestException('Chakras ไม่เพียงพอ');
-      await this.prismaService.member.update({
-        where: { id: member.id },
-        data: {
-          token: {
-            decrement: price,
+      if (result.token >= price) {
+        await this.prismaService.hint.update({
+          where: {
+            id: selected_hint.id,
+            member_id: result.paired_member.id,
           },
-        },
-      });
-      await this.prismaService.hint.update({
-        where: {
-          id: selected_hint.id,
-          member_id: result.paired_member.id,
-        },
-        data: { is_unlocked: true },
-      });
-      await this.prismaService.member.update({
-        where: { id: member.id },
-        data: {
-          token: {
-            decrement: price,
+          data: { is_unlocked: true },
+        });
+        await this.prismaService.member.update({
+          where: { id: member.id },
+          data: {
+            token: {
+              decrement: price,
+            },
           },
-        },
-      });
-      return {
-        message: `ปลดล็อคคำใบ้ที่ ${unlocked_hint.length + 1} สำเร็จ`,
-      };
+        });
+        return {
+          message: `ปลดล็อคคำใบ้ที่ ${
+            unlocked_hint.length + 1
+          } สำเร็จ`,
+        };
+      }
     } catch (error) {
       throw error;
     } finally {
@@ -345,7 +342,7 @@ export class AuthService {
     }
   }
 
-  private checkHintPhase(next: number) {
+  private async checkHintPhase(next: number) {
     const phase = {
       8: [1],
       9: [1, 2],
@@ -362,7 +359,7 @@ export class AuthService {
     return true;
   }
 
-  private checkPrice(next: number) {
+  private async checkPrice(next: number) {
     const price = {
       1: 5,
       2: 5,
