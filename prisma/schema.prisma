@@ -31,9 +31,12 @@ model Member {
   bingo_board       Json     @default("[]")
   bingo_member_list String[]
 
-  unlocked_puzzle Json   @default("[]")
-  puzzle_url      String @default("")
-  hint            Hint[]
+  unlocked_puzzle    Json     @default("[]")
+  puzzle_url         String   @default("")
+  puzzle_count       Int      @default(0)
+  puzzle_member_list String[]
+
+  hint Hint[]
 
   created_codes  Code[] @relation("Create")
   redeemed_codes Code[] @relation("Redeem")

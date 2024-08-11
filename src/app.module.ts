@@ -6,13 +6,14 @@ import { SophomoreModule } from './member/sophomore/sophomore.module';
 import { PairerModule } from './member/pairer/pairer.module';
 import { CodeHuntModule } from './member/code-hunt/code-hunt.module';
 import { AuthModule } from './member/auth/auth.module';
-import { PrismaService } from './libs/prisma';
 import { BingoModule } from './member/bingo/bingo.module';
 import { ThisThatModule } from './member/this-that/this-that.module';
 import { PuzzleModule } from './member/puzzle/puzzle.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     FreshyModule,
     SophomoreModule,
     PairerModule,
