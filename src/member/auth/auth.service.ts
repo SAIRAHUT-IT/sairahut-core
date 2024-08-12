@@ -76,7 +76,12 @@ export class AuthService {
 
   public async validateMember(body: ValidateMemberDto) {
     try {
-      const member = await this.prismaService.member.findFirst({
+      const {
+        puzzle_member_list,
+        bingo_member_list,
+        paired_member_id,
+        ...member
+      } = await this.prismaService.member.findFirst({
         where: { id: body.id },
         include: {
           paired_member: {
