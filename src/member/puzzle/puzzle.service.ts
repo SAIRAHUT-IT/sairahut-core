@@ -64,6 +64,10 @@ export class PuzzleService {
       });
       if (!soph)
         throw new BadRequestException('ไม่พบจอมยุทธ์ท่านนี้');
+      if (member.puzzle_count === 3)
+        throw new BadRequestException(
+          'คุณได้ปลดล็อคครบ 3 ครั้งแล้วมาเปิดใหม่ในวันพรุ่งนี้นะ',
+        );
       if (soph.elemental != member.elemental) {
         await this.prismaService.member.update({
           where: { id: member.id },
@@ -80,10 +84,6 @@ export class PuzzleService {
           message: `เสียใจด้วยน้าา จอมยุทธ์ท่านนี้ไม่ใช้สำนักเดียวกัน`,
         };
       } else {
-        if (member.puzzle_count === 3)
-          throw new BadRequestException(
-            'คุณได้ปลดล็อคครบ 3 ครั้งแล้วมาเปิดใหม่ในวันพรุ่งนี้นะ',
-          );
         if (!member) throw new NotFoundException('ไม่พบผู้ใช้');
         const unlockedPuzzles = member.unlocked_puzzle as number[][];
         const availablePuzzle = puzzle.filter(
