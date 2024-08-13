@@ -10,6 +10,7 @@ import { BingoModule } from './member/bingo/bingo.module';
 import { ThisThatModule } from './member/this-that/this-that.module';
 import { PuzzleModule } from './member/puzzle/puzzle.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { CronModule } from './cron/cron.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     BingoModule,
     ThisThatModule,
     PuzzleModule,
+    CronModule,
   ],
   controllers: [AppController],
   providers: [AppService],
