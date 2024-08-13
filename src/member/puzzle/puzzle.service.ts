@@ -156,4 +156,18 @@ export class PuzzleService {
       throw error;
     }
   }
+
+  public async getPuzzleImage(_member: ValidateMemberDto) {
+    try {
+      const result = await this.prismaService.member.findFirst({
+        where: { id: _member.id },
+        include: {
+          paired_member: true,
+        },
+      });
+      return `https://sairahut.tanansorn.bio/${result.paired_member.student_id}.webp`;
+    } catch (error) {
+      throw error;
+    }
+  }
 }

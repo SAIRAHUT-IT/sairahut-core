@@ -31,4 +31,9 @@ export class PuzzleController {
   getPuzzle(@MemberValidator() member: ValidateMemberDto) {
     return this.puzzleService.getPuzzle(member);
   }
+
+  @Get('image')
+  getPuzzleImage(@MemberValidator() member: ValidateMemberDto) {
+    return this.puzzleService.getPuzzleImage(member);
+  }
 }

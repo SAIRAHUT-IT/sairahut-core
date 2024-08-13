@@ -110,7 +110,6 @@ export class AuthService {
       if (!member) {
         throw new Error('Member not found');
       }
-
       const overall = await this.prismaService.member.findMany({
         where: { role: member.role },
         orderBy: { reputation: 'desc' },
