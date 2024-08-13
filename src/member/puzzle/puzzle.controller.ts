@@ -16,11 +16,15 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { PatchPuzzle } from 'src/dtos/puzzle/puzzle.dto';
 import { HttpService } from '@nestjs/axios';
 import { Response } from 'express';
+import { RolesGuard } from 'src/libs/auth/role.guard';
+import { Role } from 'src/libs/decorators/role.decorators';
+import { MemberRole } from '@prisma/client';
 
 @ApiTags('PUZZLE')
 @Controller('puzzle')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@Role(MemberRole.FRESHY)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class PuzzleController {
   constructor(
     private readonly puzzleService: PuzzleService,
