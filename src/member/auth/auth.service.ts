@@ -309,10 +309,10 @@ export class AuthService {
       if (locked_hint.length <= 0) {
         throw new BadRequestException('คำใบ้ปลดล็อคครบแล้ว');
       }
-      if (!(await this.checkHintPhase(unlocked_hint.length + 1)))
-        throw new BadRequestException(
-          'วันนี้ไม่สามารถปลดล็อคคำใบ้เพิ่มได้',
-        );
+      // if (!(await this.checkHintPhase(unlocked_hint.length + 1)))
+      //   throw new BadRequestException(
+      //     'วันนี้ไม่สามารถปลดล็อคคำใบ้เพิ่มได้',
+      //   );
       const selected_hint = locked_hint[0];
       const price = await this.checkPrice(unlocked_hint.length + 1);
       if (result.token < price)
@@ -357,6 +357,7 @@ export class AuthService {
     };
     const day = new Date().getDate();
     if (!phase[day]) return false;
+    if (day > 13) return true;
     const phase_range = day > 13 ? [1, 2, 3, 4, 5, 6, 7] : phase[day];
     const valid = phase_range.includes(next);
     if (!valid) return false;
