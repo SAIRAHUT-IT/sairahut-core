@@ -11,6 +11,7 @@ import { ThisThatModule } from './member/this-that/this-that.module';
 import { PuzzleModule } from './member/puzzle/puzzle.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronModule } from './cron/cron.module';
+import { GuessModule } from './member/guess/guess.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { CronModule } from './cron/cron.module';
     ThisThatModule,
     PuzzleModule,
     CronModule,
+    GuessModule,
   ],
   controllers: [AppController],
   providers: [AppService],
