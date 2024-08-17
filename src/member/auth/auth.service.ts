@@ -255,6 +255,7 @@ export class AuthService {
             const result = await this.prismaService.member.update({
               where: {
                 email: memberInfo.email,
+                username: `google:${memberInfo.id}`,
               },
               data: update_payload,
             });
