@@ -184,6 +184,7 @@ export class AuthService {
             role: member.role,
           };
           const updater_payload = {
+            username: `google:${memberInfo.id}`,
             avatarURL: memberInfo.picture,
           };
           if (member.role == MemberRole.FRESHY) {
