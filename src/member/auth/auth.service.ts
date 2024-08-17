@@ -94,6 +94,7 @@ export class AuthService {
                   id: 'asc',
                 },
               },
+              real_nickname: true,
             },
           },
           paired_with: true,
